@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import { connectDB, verifyToken, Task, History, Notification } from '../../utils/auth';
 
 export const dynamic = 'force-dynamic';
@@ -65,6 +66,25 @@ export async function PUT(
       actualHours
     } = await request.json();
 
+    // Validar ObjectIds si se proporcionan
+    if (projectId !== undefined && projectId !== null && projectId !== '') {
+      if (!mongoose.Types.ObjectId.isValid(projectId)) {
+        return NextResponse.json(
+          { message: 'ID de proyecto inválido' },
+          { status: 400 }
+        );
+      }
+    }
+
+    if (assignedTo !== undefined && assignedTo !== null && assignedTo !== '') {
+      if (!mongoose.Types.ObjectId.isValid(assignedTo)) {
+        return NextResponse.json(
+          { message: 'ID de usuario asignado inválido' },
+          { status: 400 }
+        );
+      }
+    }
+
     // Guardar valores antiguos para historial
     const oldStatus = task.status;
     const oldPriority = task.priority;
@@ -75,8 +95,8 @@ export async function PUT(
     if (description !== undefined) task.description = description;
     if (status !== undefined) task.status = status;
     if (priority !== undefined) task.priority = priority;
-    if (projectId !== undefined) task.projectId = projectId;
-    if (assignedTo !== undefined) task.assignedTo = assignedTo;
+    if (projectId !== undefined) task.projectId = projectId || null;
+    if (assignedTo !== undefined) task.assignedTo = assignedTo || null;
     if (dueDate !== undefined) task.dueDate = dueDate;
     if (estimatedHours !== undefined) task.estimatedHours = estimatedHours;
     if (actualHours !== undefined) task.actualHours = actualHours;

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import { connectDB, verifyToken, Task, History, Notification } from '../utils/auth';
 
 export const dynamic = 'force-dynamic';
@@ -48,13 +49,39 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validar ObjectIds
+    let validProjectId = null;
+    let validAssignedTo = null;
+
+    if (projectId) {
+      if (mongoose.Types.ObjectId.isValid(projectId)) {
+        validProjectId = projectId;
+      } else {
+        return NextResponse.json(
+          { message: 'ID de proyecto inválido' },
+          { status: 400 }
+        );
+      }
+    }
+
+    if (assignedTo) {
+      if (mongoose.Types.ObjectId.isValid(assignedTo)) {
+        validAssignedTo = assignedTo;
+      } else {
+        return NextResponse.json(
+          { message: 'ID de usuario asignado inválido' },
+          { status: 400 }
+        );
+      }
+    }
+
     const task = await Task.create({
       title,
       description: description || '',
       status: status || 'Pendiente',
       priority: priority || 'Media',
-      projectId: projectId || null,
-      assignedTo: assignedTo || null,
+      projectId: validProjectId,
+      assignedTo: validAssignedTo,
       dueDate: dueDate || null,
       estimatedHours: estimatedHours || 0,
       actualHours: 0,

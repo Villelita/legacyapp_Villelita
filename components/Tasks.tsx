@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTasks, useProjects, useAuth } from '@/hooks/useAPI';
 import { Task, Project } from '@/hooks/useAPI';
+import { usersAPI } from '@/lib/api';
 
 export default function Tasks() {
   const { user } = useAuth();
@@ -23,10 +24,18 @@ export default function Tasks() {
   });
 
   useEffect(() => {
-    // Cargar usuarios desde la API (necesitarías un endpoint para esto)
-    // Por ahora, usaremos los usuarios que vienen en las tareas
     refreshProjects();
+    loadUsers();
   }, []);
+
+  const loadUsers = async () => {
+    try {
+      const usersData = await usersAPI.getAll();
+      setUsers(usersData);
+    } catch (error) {
+      console.error('Error loading users:', error);
+    }
+  };
 
   const handleAddTask = async () => {
     if (!formData.title) {
@@ -222,12 +231,15 @@ export default function Tasks() {
         </div>
         <div className="form-group">
           <label>Asignado a:</label>
-          <input
-            type="text"
+          <select
             value={formData.assignedTo}
             onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
-            placeholder="ID de usuario (por ahora)"
-          />
+          >
+            <option value="">Sin asignar</option>
+            {users.map(user => (
+              <option key={user._id} value={user._id}>{user.username}</option>
+            ))}
+          </select>
         </div>
         <div className="form-group">
           <label>Fecha Vencimiento:</label>

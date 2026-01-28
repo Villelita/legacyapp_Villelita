@@ -127,6 +127,11 @@ export const searchAPI = {
   }),
 };
 
+// Users API
+export const usersAPI = {
+  getAll: async () => fetchAPI('/users'),
+};
+
 // Reports API
 export const reportsAPI = {
   getTasksReport: async () => fetchAPI('/reports/tasks'),
