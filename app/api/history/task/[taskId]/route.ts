@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB, verifyToken, History } from '../../utils/auth';
+import { connectDB, verifyToken, History } from '../../../utils/auth';
 
 export const dynamic = 'force-dynamic';
 
