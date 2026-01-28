@@ -12,6 +12,7 @@ import historyRoutes from './routes/historyRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import searchRoutes from './routes/searchRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
+import seedRoutes from './routes/seedRoutes.js';
 
 // Cargar variables de entorno
 dotenv.config();
@@ -38,6 +39,7 @@ app.use('/api/history', historyRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/seed', seedRoutes);
 
 // Ruta de prueba
 app.get('/api/health', (req, res) => {
