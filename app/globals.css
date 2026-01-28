@@ -358,7 +358,8 @@ table tr:hover {
 }
 
 .confirm-dialog {
-  background: #111827;
+  /* Azul más claro para el fondo del modal de confirmación */
+  background: #1e3a8a; /* azul medio */
   color: #f9fafb;
   padding: 24px 28px;
   border-radius: 12px;
