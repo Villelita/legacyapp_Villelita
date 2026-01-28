@@ -9,8 +9,7 @@ export async function GET(request: NextRequest) {
     await connectDB();
     await verifyToken(request);
 
-    const tasks = await Task.find()
-      .populate('projectId', 'name');
+    const tasks = await Task.find().populate('projectId', 'name');
 
     let csv = 'ID,Título,Estado,Prioridad,Proyecto\n';
 

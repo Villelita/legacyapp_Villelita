@@ -5,6 +5,7 @@ import { useTasks, useProjects, useAuth } from '@/hooks/useAPI';
 import { Task, Project } from '@/hooks/useAPI';
 import { usersAPI } from '@/lib/api';
 import { useNotification } from '@/hooks/useNotification';
+import ConfirmModal from '@/components/ConfirmModal';
 
 export default function Tasks() {
   const { user } = useAuth();
@@ -24,6 +25,12 @@ export default function Tasks() {
     dueDate: '',
     estimatedHours: 0
   });
+
+  const [confirmDelete, setConfirmDelete] = useState<{
+    open: boolean;
+    id: string;
+    title: string;
+  } | null>(null);
 
   useEffect(() => {
     refreshProjects();
@@ -102,15 +109,28 @@ export default function Tasks() {
     const task = tasks.find(t => t._id === selectedTaskId);
     if (!task) return;
 
-    if (confirm('¿Eliminar tarea: ' + task.title + '?')) {
-      try {
-        await deleteTask(selectedTaskId);
-        clearForm();
-        notify('Tarea eliminada correctamente', 'success');
-      } catch (error: any) {
-        notify('Error al eliminar tarea: ' + error.message, 'error');
-      }
+    setConfirmDelete({
+      open: true,
+      id: selectedTaskId,
+      title: task.title,
+    });
+  };
+
+  const handleConfirmDeleteTask = async () => {
+    if (!confirmDelete) return;
+    try {
+      await deleteTask(confirmDelete.id);
+      clearForm();
+      notify('Tarea eliminada correctamente', 'error');
+    } catch (error: any) {
+      notify('Error al eliminar tarea: ' + error.message, 'error');
+    } finally {
+      setConfirmDelete(null);
     }
+  };
+
+  const handleCancelDeleteTask = () => {
+    setConfirmDelete(null);
   };
 
   const clearForm = () => {
@@ -306,6 +326,20 @@ export default function Tasks() {
         <strong>Estadísticas:</strong>{' '}
         Total: {statsData.total} | Completadas: {statsData.completed} | Pendientes: {statsData.pending} | Alta Prioridad: {statsData.highPriority} | Vencidas: {statsData.overdue}
       </div>
+
+      <ConfirmModal
+        open={!!confirmDelete?.open}
+        title="Eliminar tarea"
+        message={
+          confirmDelete
+            ? `¿Seguro que quieres eliminar la tarea \"${confirmDelete.title}\"? Esta acción no se puede deshacer.`
+            : ''
+        }
+        confirmLabel="Eliminar"
+        cancelLabel="Cancelar"
+        onConfirm={handleConfirmDeleteTask}
+        onCancel={handleCancelDeleteTask}
+      />
     </div>
   );
 }

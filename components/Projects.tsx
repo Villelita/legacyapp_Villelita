@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useProjects } from '@/hooks/useAPI';
 import { Project } from '@/hooks/useAPI';
 import { useNotification } from '@/hooks/useNotification';
+import ConfirmModal from '@/components/ConfirmModal';
 
 export default function Projects() {
   const { projects, addProject, updateProject, deleteProject, refreshProjects } = useProjects();
@@ -13,6 +14,12 @@ export default function Projects() {
     description: ''
   });
   const { notify } = useNotification();
+
+  const [confirmDelete, setConfirmDelete] = useState<{
+    open: boolean;
+    id: string;
+    name: string;
+  } | null>(null);
 
   useEffect(() => {
     refreshProjects();
@@ -55,16 +62,29 @@ export default function Projects() {
       return;
     }
 
-    if (confirm('¿Eliminar proyecto: ' + selectedProject.name + '?')) {
-      try {
-        await deleteProject(selectedProject._id);
-        setFormData({ name: '', description: '' });
-        setSelectedProject(null);
-        notify('Proyecto eliminado correctamente', 'success');
-      } catch (error: any) {
-        notify('Error al eliminar proyecto: ' + error.message, 'error');
-      }
+    setConfirmDelete({
+      open: true,
+      id: selectedProject._id,
+      name: selectedProject.name,
+    });
+  };
+
+  const handleConfirmDeleteProject = async () => {
+    if (!confirmDelete) return;
+    try {
+      await deleteProject(confirmDelete.id);
+      setFormData({ name: '', description: '' });
+      setSelectedProject(null);
+      notify('Proyecto eliminado correctamente', 'error');
+    } catch (error: any) {
+      notify('Error al eliminar proyecto: ' + error.message, 'error');
+    } finally {
+      setConfirmDelete(null);
     }
+  };
+
+  const handleCancelDeleteProject = () => {
+    setConfirmDelete(null);
   };
 
   const selectProject = (project: Project) => {
@@ -121,6 +141,20 @@ export default function Projects() {
           </tbody>
         </table>
       </div>
+
+      <ConfirmModal
+        open={!!confirmDelete?.open}
+        title="Eliminar proyecto"
+        message={
+          confirmDelete
+            ? `¿Seguro que quieres eliminar el proyecto \"${confirmDelete.name}\"? Esta acción no se puede deshacer.`
+            : ''
+        }
+        confirmLabel="Eliminar"
+        cancelLabel="Cancelar"
+        onConfirm={handleConfirmDeleteProject}
+        onCancel={handleCancelDeleteProject}
+      />
     </div>
   );
 }
