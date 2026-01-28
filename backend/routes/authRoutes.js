@@ -1,6 +1,7 @@
 import express from 'express';
 import User from '../models/User.js';
 import generateToken from '../utils/generateToken.js';
+import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -72,9 +73,8 @@ router.post('/login', async (req, res) => {
 // @route   GET /api/auth/me
 // @desc    Obtener usuario actual
 // @access  Private
-router.get('/me', async (req, res) => {
+router.get('/me', protect, async (req, res) => {
   try {
-    // Este endpoint requiere autenticación, se manejará con middleware
     res.json(req.user);
   } catch (error) {
     res.status(500).json({ message: error.message });
