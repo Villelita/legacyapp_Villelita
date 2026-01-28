@@ -56,16 +56,25 @@ router.post('/login', async (req, res) => {
     // Buscar usuario
     const user = await User.findOne({ username });
 
-    if (user && (await user.matchPassword(password))) {
+    if (!user) {
+      console.log(`Usuario no encontrado: ${username}`);
+      return res.status(401).json({ message: 'Credenciales inválidas' });
+    }
+
+    const isPasswordValid = await user.matchPassword(password);
+    
+    if (isPasswordValid) {
       res.json({
         _id: user._id,
         username: user.username,
         token: generateToken(user._id)
       });
     } else {
+      console.log(`Contraseña incorrecta para usuario: ${username}`);
       res.status(401).json({ message: 'Credenciales inválidas' });
     }
   } catch (error) {
+    console.error('Error en login:', error);
     res.status(500).json({ message: error.message });
   }
 });
