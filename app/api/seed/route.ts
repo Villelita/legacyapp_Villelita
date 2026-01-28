@@ -8,11 +8,15 @@ async function connectDB() {
     return; // Ya está conectado
   }
   
-  if (!process.env.MONGODB_URI) {
-    throw new Error('MONGODB_URI no está configurada');
+  // Verificar que la variable de entorno esté configurada
+  const mongoUri = process.env.MONGODB_URI;
+  if (!mongoUri) {
+    console.error('MONGODB_URI no encontrada en process.env');
+    console.error('Variables disponibles:', Object.keys(process.env).filter(k => k.includes('MONGO')));
+    throw new Error('MONGODB_URI no está configurada. Por favor, agrega la variable MONGODB_URI en Render Dashboard > Environment Variables');
   }
   
-  await mongoose.connect(process.env.MONGODB_URI);
+  await mongoose.connect(mongoUri);
 }
 
 // Modelos
