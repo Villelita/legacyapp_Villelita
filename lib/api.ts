@@ -1,5 +1,7 @@
 // Configuración de la API
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+// En producción, usa las API routes de Next.js (relativas)
+// En desarrollo, puede usar el backend separado si está corriendo
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 // Función helper para hacer peticiones
 async function fetchAPI(endpoint: string, options: RequestInit = {}) {
