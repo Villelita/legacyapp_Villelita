@@ -4,12 +4,14 @@ import { useState, useEffect } from 'react';
 import { useTasks, useProjects, useAuth } from '@/hooks/useAPI';
 import { Task, Project } from '@/hooks/useAPI';
 import { usersAPI } from '@/lib/api';
+import { useNotification } from '@/hooks/useNotification';
 
 export default function Tasks() {
   const { user } = useAuth();
   const { tasks, addTask, updateTask, deleteTask, refreshTasks, isLoading } = useTasks();
   const { projects, refreshProjects } = useProjects();
   const [users, setUsers] = useState<any[]>([]);
+  const { notify } = useNotification();
 
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -39,7 +41,7 @@ export default function Tasks() {
 
   const handleAddTask = async () => {
     if (!formData.title) {
-      alert('El título es requerido');
+      notify('El título es requerido', 'error');
       return;
     }
 
@@ -58,15 +60,15 @@ export default function Tasks() {
 
       await addTask(taskData);
       clearForm();
-      alert('Tarea agregada');
+      notify('Tarea agregada correctamente', 'success');
     } catch (error: any) {
-      alert('Error al agregar tarea: ' + error.message);
+      notify('Error al agregar tarea: ' + error.message, 'error');
     }
   };
 
   const handleUpdateTask = async () => {
     if (!selectedTaskId) {
-      alert('Selecciona una tarea');
+      notify('Selecciona una tarea', 'error');
       return;
     }
 
@@ -85,15 +87,15 @@ export default function Tasks() {
 
       await updateTask(selectedTaskId, taskData);
       clearForm();
-      alert('Tarea actualizada');
+      notify('Tarea actualizada correctamente', 'success');
     } catch (error: any) {
-      alert('Error al actualizar tarea: ' + error.message);
+      notify('Error al actualizar tarea: ' + error.message, 'error');
     }
   };
 
   const handleDeleteTask = async () => {
     if (!selectedTaskId) {
-      alert('Selecciona una tarea');
+      notify('Selecciona una tarea', 'error');
       return;
     }
 
@@ -104,9 +106,9 @@ export default function Tasks() {
       try {
         await deleteTask(selectedTaskId);
         clearForm();
-        alert('Tarea eliminada');
+        notify('Tarea eliminada correctamente', 'success');
       } catch (error: any) {
-        alert('Error al eliminar tarea: ' + error.message);
+        notify('Error al eliminar tarea: ' + error.message, 'error');
       }
     }
   };

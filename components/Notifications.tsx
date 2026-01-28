@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useNotifications } from '@/hooks/useAPI';
+import { useNotification } from '@/hooks/useNotification';
 
 export default function Notifications() {
   const { notifications, loadNotifications, markAsRead, isLoading } = useNotifications();
+  const { notify } = useNotification();
 
   useEffect(() => {
     loadNotifications();
@@ -13,9 +15,9 @@ export default function Notifications() {
   const handleMarkAsRead = async () => {
     try {
       await markAsRead();
-      alert('Notificaciones marcadas como leídas');
+      notify('Notificaciones marcadas como leídas', 'success');
     } catch (error: any) {
-      alert('Error: ' + error.message);
+      notify('Error al marcar notificaciones: ' + error.message, 'error');
     }
   };
 

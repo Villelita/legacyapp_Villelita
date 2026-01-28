@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useProjects } from '@/hooks/useAPI';
 import { Project } from '@/hooks/useAPI';
+import { useNotification } from '@/hooks/useNotification';
 
 export default function Projects() {
   const { projects, addProject, updateProject, deleteProject, refreshProjects } = useProjects();
@@ -11,6 +12,7 @@ export default function Projects() {
     name: '',
     description: ''
   });
+  const { notify } = useNotification();
 
   useEffect(() => {
     refreshProjects();
@@ -18,22 +20,22 @@ export default function Projects() {
 
   const handleAddProject = async () => {
     if (!formData.name) {
-      alert('El nombre es requerido');
+      notify('El nombre es requerido', 'error');
       return;
     }
 
     try {
       await addProject(formData);
       setFormData({ name: '', description: '' });
-      alert('Proyecto agregado');
+      notify('Proyecto agregado correctamente', 'success');
     } catch (error: any) {
-      alert('Error al agregar proyecto: ' + error.message);
+      notify('Error al agregar proyecto: ' + error.message, 'error');
     }
   };
 
   const handleUpdateProject = async () => {
     if (!selectedProject) {
-      alert('Selecciona un proyecto de la tabla');
+      notify('Selecciona un proyecto de la tabla', 'error');
       return;
     }
 
@@ -41,15 +43,15 @@ export default function Projects() {
       await updateProject(selectedProject._id, formData);
       setFormData({ name: '', description: '' });
       setSelectedProject(null);
-      alert('Proyecto actualizado');
+      notify('Proyecto actualizado correctamente', 'success');
     } catch (error: any) {
-      alert('Error al actualizar proyecto: ' + error.message);
+      notify('Error al actualizar proyecto: ' + error.message, 'error');
     }
   };
 
   const handleDeleteProject = async () => {
     if (!selectedProject) {
-      alert('Selecciona un proyecto de la tabla');
+      notify('Selecciona un proyecto de la tabla', 'error');
       return;
     }
 
@@ -58,9 +60,9 @@ export default function Projects() {
         await deleteProject(selectedProject._id);
         setFormData({ name: '', description: '' });
         setSelectedProject(null);
-        alert('Proyecto eliminado');
+        notify('Proyecto eliminado correctamente', 'success');
       } catch (error: any) {
-        alert('Error al eliminar proyecto: ' + error.message);
+        notify('Error al eliminar proyecto: ' + error.message, 'error');
       }
     }
   };

@@ -2,35 +2,37 @@
 
 import { useState } from 'react';
 import { useComments } from '@/hooks/useAPI';
+import { useNotification } from '@/hooks/useNotification';
 
 export default function Comments() {
   const { comments, loadComments, addComment, isLoading } = useComments();
   const [taskId, setTaskId] = useState('');
   const [commentText, setCommentText] = useState('');
+  const { notify } = useNotification();
 
   const handleAddComment = async () => {
     if (!taskId) {
-      alert('ID de tarea requerido');
+      notify('ID de tarea requerido', 'error');
       return;
     }
 
     if (!commentText) {
-      alert('El comentario no puede estar vacío');
+      notify('El comentario no puede estar vacío', 'error');
       return;
     }
 
     try {
       await addComment({ taskId, commentText });
       setCommentText('');
-      alert('Comentario agregado');
+      notify('Comentario agregado correctamente', 'success');
     } catch (error: any) {
-      alert('Error al agregar comentario: ' + error.message);
+      notify('Error al agregar comentario: ' + error.message, 'error');
     }
   };
 
   const handleLoadComments = async () => {
     if (!taskId) {
-      alert('ID de tarea requerido');
+      notify('ID de tarea requerido', 'error');
       return;
     }
     await loadComments(taskId);
