@@ -6,13 +6,14 @@ export const dynamic = 'force-dynamic';
 // GET /api/projects/:id - Obtener un proyecto por ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
     await verifyToken(request);
+    const { id } = await params;
 
-    const project = await Project.findById(params.id);
+    const project = await Project.findById(id);
 
     if (!project) {
       return NextResponse.json(
@@ -33,13 +34,14 @@ export async function GET(
 // PUT /api/projects/:id - Actualizar proyecto
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
     await verifyToken(request);
+    const { id } = await params;
 
-    const project = await Project.findById(params.id);
+    const project = await Project.findById(id);
 
     if (!project) {
       return NextResponse.json(
@@ -67,13 +69,14 @@ export async function PUT(
 // DELETE /api/projects/:id - Eliminar proyecto
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
     await verifyToken(request);
+    const { id } = await params;
 
-    const project = await Project.findById(params.id);
+    const project = await Project.findById(id);
 
     if (!project) {
       return NextResponse.json(
@@ -82,7 +85,7 @@ export async function DELETE(
       );
     }
 
-    await Project.findByIdAndDelete(params.id);
+    await Project.findByIdAndDelete(id);
 
     return NextResponse.json({ message: 'Proyecto eliminado' });
   } catch (error: any) {

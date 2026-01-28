@@ -6,13 +6,14 @@ export const dynamic = 'force-dynamic';
 // GET /api/tasks/:id - Obtener una tarea por ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
     await verifyToken(request);
+    const { id } = await params;
 
-    const task = await Task.findById(params.id)
+    const task = await Task.findById(id)
       .populate('projectId', 'name description')
       .populate('assignedTo', 'username')
       .populate('createdBy', 'username');
@@ -36,13 +37,14 @@ export async function GET(
 // PUT /api/tasks/:id - Actualizar tarea
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
     const userId = await verifyToken(request);
+    const { id } = await params;
 
-    const task = await Task.findById(params.id);
+    const task = await Task.findById(id);
 
     if (!task) {
       return NextResponse.json(
@@ -138,13 +140,14 @@ export async function PUT(
 // DELETE /api/tasks/:id - Eliminar tarea
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
     await verifyToken(request);
+    const { id } = await params;
 
-    const task = await Task.findById(params.id);
+    const task = await Task.findById(id);
 
     if (!task) {
       return NextResponse.json(
@@ -153,7 +156,7 @@ export async function DELETE(
       );
     }
 
-    await Task.findByIdAndDelete(params.id);
+    await Task.findByIdAndDelete(id);
 
     return NextResponse.json({ message: 'Tarea eliminada' });
   } catch (error: any) {

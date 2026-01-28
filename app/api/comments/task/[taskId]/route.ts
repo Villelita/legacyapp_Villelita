@@ -6,13 +6,14 @@ export const dynamic = 'force-dynamic';
 // GET /api/comments/task/:taskId - Obtener comentarios de una tarea
 export async function GET(
   request: NextRequest,
-  { params }: { params: { taskId: string } }
+  { params }: { params: Promise<{ taskId: string }> }
 ) {
   try {
     await connectDB();
     await verifyToken(request);
+    const { taskId } = await params;
 
-    const comments = await Comment.find({ taskId: params.taskId })
+    const comments = await Comment.find({ taskId })
       .populate('userId', 'username')
       .sort({ createdAt: -1 });
 
