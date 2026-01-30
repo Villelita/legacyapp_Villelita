@@ -39,19 +39,6 @@ cd backend
 npm install
 ```
 
-Crea un archivo `.env` en la carpeta `backend`:
-```env
-PORT=5000
-MONGODB_URI=mongodb://localhost:27017/taskmanager
-JWT_SECRET=tu_secret_key_super_segura_aqui
-CORS_ORIGINS=http://localhost:3000
-```
-
-Para MongoDB Atlas, usa:
-```env
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/taskmanager
-```
-
 ### 3. Inicializar datos (opcional)
 
 ```bash
@@ -92,40 +79,6 @@ npm run dev
 
 El frontend estará corriendo en `http://localhost:3000`
 
-## 📡 Estructura del Proyecto
-
-```
-legacyapp/
-├── app/                    # Next.js App Router
-│   ├── layout.tsx
-│   ├── page.tsx
-│   └── globals.css
-├── components/             # Componentes React
-│   ├── Login.tsx
-│   ├── Tasks.tsx
-│   ├── Projects.tsx
-│   ├── Comments.tsx
-│   ├── History.tsx
-│   ├── Notifications.tsx
-│   ├── Search.tsx
-│   └── Reports.tsx
-├── hooks/                 # React Hooks
-│   ├── useAPI.ts          # Hooks para API
-│   └── useStorage.ts      # Hooks legacy (no usado)
-├── lib/                   # Utilidades
-│   ├── api.ts             # Cliente API
-│   └── storage.ts         # Storage legacy (no usado)
-├── backend/               # Backend Express.js
-│   ├── config/            # Configuración
-│   ├── models/            # Modelos Mongoose
-│   ├── routes/            # Rutas API
-│   ├── middleware/        # Middleware
-│   ├── utils/             # Utilidades
-│   ├── scripts/           # Scripts
-│   └── server.js          # Servidor principal
-└── package.json
-```
-
 ## 🔐 Autenticación
 
 La aplicación usa JWT (JSON Web Tokens) para autenticación:
@@ -135,10 +88,6 @@ La aplicación usa JWT (JSON Web Tokens) para autenticación:
 3. El token se guarda en `localStorage`
 4. Todas las peticiones incluyen el token en el header: `Authorization: Bearer <token>`
 
-## 📝 Endpoints de la API
-
-Ver documentación completa en `backend/README.md`
-
 ### Principales:
 - `POST /api/auth/login` - Login
 - `POST /api/auth/register` - Registro
@@ -147,37 +96,6 @@ Ver documentación completa en `backend/README.md`
 - `PUT /api/tasks/:id` - Actualizar tarea
 - `DELETE /api/tasks/:id` - Eliminar tarea
 - Y muchos más...
-
-## 🌐 Deployment
-
-Ver guía completa en `DEPLOYMENT.md`
-
-### Resumen rápido:
-
-1. **Backend**: Deploy en Railway/Render/Heroku
-2. **Frontend**: Deploy en Vercel
-3. **MongoDB**: MongoDB Atlas (gratis)
-
-## 🧪 Pruebas
-
-### Probar el Backend
-
-```bash
-# Health check
-curl http://localhost:5000/api/health
-
-# Login
-curl -X POST http://localhost:5000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"admin","password":"admin"}'
-```
-
-### Probar el Frontend
-
-1. Abre `http://localhost:3000`
-2. Login con `admin` / `admin`
-3. Crea una tarea
-4. Verifica que todo funcione
 
 ## 📦 Scripts Disponibles
 
@@ -192,22 +110,6 @@ curl -X POST http://localhost:5000/api/auth/login \
 - `npm start` - Producción
 - `node scripts/seedData.js` - Crear datos iniciales
 
-## 🐛 Solución de Problemas
-
-### Error: "Cannot connect to MongoDB"
-- Verifica que MongoDB esté corriendo
-- Revisa la connection string en `.env`
-- Para MongoDB Atlas, verifica la whitelist de IPs
-
-### Error: "CORS policy"
-- Verifica que `CORS_ORIGINS` en el backend incluya la URL del frontend
-- Asegúrate de que no haya espacios en la variable
-
-### Frontend no se conecta al backend
-- Verifica que `NEXT_PUBLIC_API_URL` esté configurado
-- Asegúrate de que el backend esté corriendo
-- Revisa la consola del navegador
-
 ## 📚 Documentación Adicional
 
 - [Backend README](backend/README.md) - Documentación completa del backend
@@ -216,13 +118,6 @@ curl -X POST http://localhost:5000/api/auth/login \
 - [Express.js Docs](https://expressjs.com/)
 - [MongoDB Docs](https://docs.mongodb.com/)
 
-## 🎉 ¡Listo!
 
-Tu aplicación está lista para usar. Puedes:
-- Desarrollar localmente
-- Desplegar en producción
-- Escalar según necesites
 
-## 📄 Licencia
 
-Este proyecto es de código abierto.

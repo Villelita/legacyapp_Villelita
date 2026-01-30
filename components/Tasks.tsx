@@ -4,12 +4,15 @@ import { useState, useEffect } from 'react';
 import { useTasks, useProjects, useAuth } from '@/hooks/useAPI';
 import { Task, Project } from '@/hooks/useAPI';
 import { usersAPI } from '@/lib/api';
+import { useNotification } from '@/hooks/useNotification';
+import ConfirmModal from '@/components/ConfirmModal';
 
 export default function Tasks() {
   const { user } = useAuth();
   const { tasks, addTask, updateTask, deleteTask, refreshTasks, isLoading } = useTasks();
   const { projects, refreshProjects } = useProjects();
   const [users, setUsers] = useState<any[]>([]);
+  const { notify } = useNotification();
 
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -22,6 +25,12 @@ export default function Tasks() {
     dueDate: '',
     estimatedHours: 0
   });
+
+  const [confirmDelete, setConfirmDelete] = useState<{
+    open: boolean;
+    id: string;
+    title: string;
+  } | null>(null);
 
   useEffect(() => {
     refreshProjects();
@@ -39,7 +48,7 @@ export default function Tasks() {
 
   const handleAddTask = async () => {
     if (!formData.title) {
-      alert('El título es requerido');
+      notify('El título es requerido', 'error');
       return;
     }
 
@@ -58,15 +67,15 @@ export default function Tasks() {
 
       await addTask(taskData);
       clearForm();
-      alert('Tarea agregada');
+      notify('Tarea agregada correctamente', 'success');
     } catch (error: any) {
-      alert('Error al agregar tarea: ' + error.message);
+      notify('Error al agregar tarea: ' + error.message, 'error');
     }
   };
 
   const handleUpdateTask = async () => {
     if (!selectedTaskId) {
-      alert('Selecciona una tarea');
+      notify('Selecciona una tarea', 'error');
       return;
     }
 
@@ -85,30 +94,43 @@ export default function Tasks() {
 
       await updateTask(selectedTaskId, taskData);
       clearForm();
-      alert('Tarea actualizada');
+      notify('Tarea actualizada correctamente', 'success');
     } catch (error: any) {
-      alert('Error al actualizar tarea: ' + error.message);
+      notify('Error al actualizar tarea: ' + error.message, 'error');
     }
   };
 
   const handleDeleteTask = async () => {
     if (!selectedTaskId) {
-      alert('Selecciona una tarea');
+      notify('Selecciona una tarea', 'error');
       return;
     }
 
     const task = tasks.find(t => t._id === selectedTaskId);
     if (!task) return;
 
-    if (confirm('¿Eliminar tarea: ' + task.title + '?')) {
-      try {
-        await deleteTask(selectedTaskId);
-        clearForm();
-        alert('Tarea eliminada');
-      } catch (error: any) {
-        alert('Error al eliminar tarea: ' + error.message);
-      }
+    setConfirmDelete({
+      open: true,
+      id: selectedTaskId,
+      title: task.title,
+    });
+  };
+
+  const handleConfirmDeleteTask = async () => {
+    if (!confirmDelete) return;
+    try {
+      await deleteTask(confirmDelete.id);
+      clearForm();
+      notify('Tarea eliminada correctamente', 'error');
+    } catch (error: any) {
+      notify('Error al eliminar tarea: ' + error.message, 'error');
+    } finally {
+      setConfirmDelete(null);
     }
+  };
+
+  const handleCancelDeleteTask = () => {
+    setConfirmDelete(null);
   };
 
   const clearForm = () => {
@@ -304,6 +326,20 @@ export default function Tasks() {
         <strong>Estadísticas:</strong>{' '}
         Total: {statsData.total} | Completadas: {statsData.completed} | Pendientes: {statsData.pending} | Alta Prioridad: {statsData.highPriority} | Vencidas: {statsData.overdue}
       </div>
+
+      <ConfirmModal
+        open={!!confirmDelete?.open}
+        title="Eliminar tarea"
+        message={
+          confirmDelete
+            ? `¿Seguro que quieres eliminar la tarea \"${confirmDelete.title}\"? Esta acción no se puede deshacer.`
+            : ''
+        }
+        confirmLabel="Eliminar"
+        cancelLabel="Cancelar"
+        onConfirm={handleConfirmDeleteTask}
+        onCancel={handleCancelDeleteTask}
+      />
     </div>
   );
 }

@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useProjects } from '@/hooks/useAPI';
 import { Project } from '@/hooks/useAPI';
+import { useNotification } from '@/hooks/useNotification';
+import ConfirmModal from '@/components/ConfirmModal';
 
 export default function Projects() {
   const { projects, addProject, updateProject, deleteProject, refreshProjects } = useProjects();
@@ -11,6 +13,13 @@ export default function Projects() {
     name: '',
     description: ''
   });
+  const { notify } = useNotification();
+
+  const [confirmDelete, setConfirmDelete] = useState<{
+    open: boolean;
+    id: string;
+    name: string;
+  } | null>(null);
 
   useEffect(() => {
     refreshProjects();
@@ -18,22 +27,22 @@ export default function Projects() {
 
   const handleAddProject = async () => {
     if (!formData.name) {
-      alert('El nombre es requerido');
+      notify('El nombre es requerido', 'error');
       return;
     }
 
     try {
       await addProject(formData);
       setFormData({ name: '', description: '' });
-      alert('Proyecto agregado');
+      notify('Proyecto agregado correctamente', 'success');
     } catch (error: any) {
-      alert('Error al agregar proyecto: ' + error.message);
+      notify('Error al agregar proyecto: ' + error.message, 'error');
     }
   };
 
   const handleUpdateProject = async () => {
     if (!selectedProject) {
-      alert('Selecciona un proyecto de la tabla');
+      notify('Selecciona un proyecto de la tabla', 'error');
       return;
     }
 
@@ -41,28 +50,41 @@ export default function Projects() {
       await updateProject(selectedProject._id, formData);
       setFormData({ name: '', description: '' });
       setSelectedProject(null);
-      alert('Proyecto actualizado');
+      notify('Proyecto actualizado correctamente', 'success');
     } catch (error: any) {
-      alert('Error al actualizar proyecto: ' + error.message);
+      notify('Error al actualizar proyecto: ' + error.message, 'error');
     }
   };
 
   const handleDeleteProject = async () => {
     if (!selectedProject) {
-      alert('Selecciona un proyecto de la tabla');
+      notify('Selecciona un proyecto de la tabla', 'error');
       return;
     }
 
-    if (confirm('¿Eliminar proyecto: ' + selectedProject.name + '?')) {
-      try {
-        await deleteProject(selectedProject._id);
-        setFormData({ name: '', description: '' });
-        setSelectedProject(null);
-        alert('Proyecto eliminado');
-      } catch (error: any) {
-        alert('Error al eliminar proyecto: ' + error.message);
-      }
+    setConfirmDelete({
+      open: true,
+      id: selectedProject._id,
+      name: selectedProject.name,
+    });
+  };
+
+  const handleConfirmDeleteProject = async () => {
+    if (!confirmDelete) return;
+    try {
+      await deleteProject(confirmDelete.id);
+      setFormData({ name: '', description: '' });
+      setSelectedProject(null);
+      notify('Proyecto eliminado correctamente', 'error');
+    } catch (error: any) {
+      notify('Error al eliminar proyecto: ' + error.message, 'error');
+    } finally {
+      setConfirmDelete(null);
     }
+  };
+
+  const handleCancelDeleteProject = () => {
+    setConfirmDelete(null);
   };
 
   const selectProject = (project: Project) => {
@@ -119,6 +141,20 @@ export default function Projects() {
           </tbody>
         </table>
       </div>
+
+      <ConfirmModal
+        open={!!confirmDelete?.open}
+        title="Eliminar proyecto"
+        message={
+          confirmDelete
+            ? `¿Seguro que quieres eliminar el proyecto \"${confirmDelete.name}\"? Esta acción no se puede deshacer.`
+            : ''
+        }
+        confirmLabel="Eliminar"
+        cancelLabel="Cancelar"
+        onConfirm={handleConfirmDeleteProject}
+        onCancel={handleCancelDeleteProject}
+      />
     </div>
   );
 }
