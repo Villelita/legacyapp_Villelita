@@ -110,13 +110,7 @@ La aplicación usa JWT (JSON Web Tokens) para autenticación:
 - `npm start` - Producción
 - `node scripts/seedData.js` - Crear datos iniciales
 
-## 📚 Documentación Adicional
 
-- [Backend README](backend/README.md) - Documentación completa del backend
-- [DEPLOYMENT.md](DEPLOYMENT.md) - Guía de deployment
-- [Next.js Docs](https://nextjs.org/docs)
-- [Express.js Docs](https://expressjs.com/)
-- [MongoDB Docs](https://docs.mongodb.com/)
 
 
 
